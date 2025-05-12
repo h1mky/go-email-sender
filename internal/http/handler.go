@@ -1,6 +1,7 @@
 package http
 
 import (
+	"EmaiSender/internal/emai"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -33,7 +34,7 @@ func handleSend(content *gin.Context) {
 		return
 	}
 
-	err := mail.SendEmail(req.Email)
+	err := emai.SendEmail(req.Email, req.Name)
 
 	if err != nil {
 		content.JSON(http.StatusInternalServerError, gin.H{"error": "error with server"})
