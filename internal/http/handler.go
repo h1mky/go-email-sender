@@ -30,6 +30,15 @@ func handleSend(content *gin.Context) {
 		return
 	case req.Terms == false:
 		content.JSON(http.StatusBadRequest, gin.H{"error": "required field"})
+		return
 	}
+
+	err := mail.SendEmail(req.Email)
+
+	if err != nil {
+		content.JSON(http.StatusInternalServerError, gin.H{"error": "error with server"})
+		return
+	}
+	content.JSON(http.StatusOK, gin.H{"success": "success with request "})
 
 }
