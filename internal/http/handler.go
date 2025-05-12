@@ -4,6 +4,7 @@ import (
 	"EmaiSender/internal/emai"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"strings"
 )
 
 type EmailRequest struct {
@@ -18,10 +19,7 @@ func handleSend(content *gin.Context) {
 		content.JSON(http.StatusBadRequest, gin.H{"error": "not valid json"})
 		return
 	}
-	if req.Name == "" {
-		content.JSON(http.StatusBadRequest, gin.H{"error": "required fields"})
-		return
-	}
+
 	switch {
 	case req.Name == "":
 		content.JSON(http.StatusBadRequest, gin.H{"error": "required field"})
@@ -32,6 +30,10 @@ func handleSend(content *gin.Context) {
 	case req.Terms == false:
 		content.JSON(http.StatusBadRequest, gin.H{"error": "required field"})
 		return
+	}
+
+	if !strings.Contains(req.Email, "") {
+		content.JSON(http.StatusBadRequest, gin.H{"error": "wrong email reference"})
 	}
 
 	err := emai.SendEmail(req.Email, req.Name)

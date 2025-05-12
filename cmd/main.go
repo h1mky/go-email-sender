@@ -1,5 +1,7 @@
 package main
 
-func main() {
+import "EmaiSender/internal/http"
 
+func main() {
+	http.StartServer()
 }
