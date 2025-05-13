@@ -32,8 +32,9 @@ func handleSend(content *gin.Context) {
 		return
 	}
 
-	if !strings.Contains(req.Email, "") {
+	if !strings.Contains(req.Email, "@") {
 		content.JSON(http.StatusBadRequest, gin.H{"error": "wrong email reference"})
+		return
 	}
 
 	err := emai.SendEmail(req.Email, req.Name)
