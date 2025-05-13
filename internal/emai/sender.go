@@ -3,12 +3,12 @@ package emai
 import (
 	"fmt"
 	"github.com/joho/godotenv"
-	"net/smtp"
+	"gopkg.in/gomail.v2"
 	"os"
+	"strconv"
 )
 
 func SendEmail(email, name string) error {
-
 	err := godotenv.Load(".env")
 	if err != nil {
 		return err
@@ -17,20 +17,30 @@ func SendEmail(email, name string) error {
 	from := os.Getenv("SMTP_USER")
 	pass := os.Getenv("SMTP_PASS")
 	host := os.Getenv("SMTP_HOST")
-	port := os.Getenv("SMTP_PORT")
+	portStr := os.Getenv("SMTP_PORT")
 
-	auth := smtp.PlainAuth("", from, pass, host)
+	var port int
 
-	msg := []byte(fmt.Sprintf(
-		"From: %s\r\n"+
-			"To: %s\r\n"+
-			"Subject: We are very grateful\r\n"+
-			"MIME-version: 1.0\r\n"+
-			"Content-Type: text/plain; charset=\"UTF-8\"\r\n"+
-			"\r\n"+
-			"Our team is very grateful for your donation, %s",
-		from, email, name))
+	port, err = strconv.Atoi(portStr)
+	if err != nil {
+		return fmt.Errorf("invalid SMTP_PORT: %v", err)
+	}
 
-	addr := host + ":" + port
-	return smtp.SendMail(addr, auth, from, []string{email}, msg)
+	m := gomail.NewMessage()
+
+	// Заголовки письма
+	m.SetHeader("From", from)
+	m.SetHeader("To", email)
+	m.SetHeader("Subject", "We are very grateful")
+
+	m.SetBody("text/html", fmt.Sprintf(
+		"<p>Dear %s,</p><p>Our team is very grateful for your donation.</p>", name))
+
+	d := gomail.NewDialer(host, port, from, pass)
+
+	if err := d.DialAndSend(m); err != nil {
+		return err
+	}
+
+	return nil
 }
