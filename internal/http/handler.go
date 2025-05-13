@@ -2,6 +2,7 @@ package http
 
 import (
 	"EmaiSender/internal/emai"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strings"
@@ -37,12 +38,14 @@ func handleSend(content *gin.Context) {
 		return
 	}
 
-	err := emai.SendEmail(req.Email, req.Name)
+	go func(email, name string) {
+		err := emai.SendEmail(email, name)
+		if err != nil {
 
-	if err != nil {
-		content.JSON(http.StatusInternalServerError, gin.H{"error": "error with server"})
-		return
-	}
+			fmt.Println("email error:", err)
+		}
+	}(req.Email, req.Name)
+
 	content.JSON(http.StatusOK, gin.H{"success": "success with request "})
 
 }
