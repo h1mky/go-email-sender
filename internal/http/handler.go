@@ -5,14 +5,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"strings"
 )
-
-type EmailRequest struct {
-	Name  string `json:"name"`
-	Email string `json:"email"`
-	Terms bool   `json:"terms"`
-}
 
 func handleSend(content *gin.Context) {
 	var req EmailRequest
@@ -21,20 +14,8 @@ func handleSend(content *gin.Context) {
 		return
 	}
 
-	switch {
-	case req.Name == "":
-		content.JSON(http.StatusBadRequest, gin.H{"error": "required field"})
-		return
-	case req.Email == "":
-		content.JSON(http.StatusBadRequest, gin.H{"error": "required field"})
-		return
-	case req.Terms == false:
-		content.JSON(http.StatusBadRequest, gin.H{"error": "required field"})
-		return
-	}
-
-	if !strings.Contains(req.Email, "@") {
-		content.JSON(http.StatusBadRequest, gin.H{"error": "wrong email reference"})
+	if err := req.Validate(); err != nil {
+		content.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
