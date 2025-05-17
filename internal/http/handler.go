@@ -9,8 +9,7 @@ import (
 
 func handleSend(content *gin.Context) {
 	var req EmailRequest
-	if err := content.ShouldBindJSON(&req); err != nil {
-		content.JSON(http.StatusBadRequest, gin.H{"error": "not valid json"})
+	if err := jsonParse(content, &req); err != nil {
 		return
 	}
 
